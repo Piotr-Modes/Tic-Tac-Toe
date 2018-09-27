@@ -1,0 +1,390 @@
+var fields,player,data,win,score1,score2,timmer,counter;
+
+//dataManipulation? DOMstrings in UI
+fields = document.querySelectorAll(".field");
+
+
+//controller setupEventListeners
+document.querySelector('.new-game').addEventListener('click',newGame);
+
+
+//newGame in controller
+function newGame(){
+    console.log('newGame');
+    //change init, init will be the only return function of controller
+    init();
+    //UI getCounter method?
+    document.querySelector('.counter').innerHTML = 10;
+    //player, score, win in the dataManipulation module, meybe function updateScoreUI, updateScoreDataManip, same for the player add/reset, or global reset function 
+    player = 1;
+    score1 = 0;
+    score2 = 0;
+    win = false;
+    //all this in a reset/nextRound function 
+    document.querySelector('.small-1').innerHTML ="";
+    document.querySelector('.small-2').innerHTML ="";
+    //UI create a div-wrap in html so only one thing have to be hide/shown
+    visibilityHide(document.querySelector(".game-wrap .winner"));
+    visible(document.querySelector('.p1'));
+    visible(document.querySelector('.p2'));
+    visible(document.querySelector('.counter'));
+    visible(document.querySelector('.new-game'));
+}
+
+//Controller method in the return object
+function init(){
+    //dataManip create function consructor new field and push to arr new fields when clicked
+    data = {
+    allFields:{
+        LT:0,
+        CT:0,
+        RT:0,
+        LC:0,
+        CC:0,
+        RC:0,
+        LB:0,
+        CB:0,
+        RB:0,
+    },
+    //try to rewrite
+    win:{
+        TR:false,
+        CR:false,
+        BR:false,
+        LC:false,
+        CC:false,
+        RC:false,
+        S1:false,
+        S2:false,
+    }
+}
+    //this should be in the reset function?
+    document.querySelector('.p1 p').innerHTML = 'player1';
+    document.querySelector('.p2 p').innerHTML = 'player2';
+    
+    counter = 0;
+    //in the reset? removeEvent function?
+    loopArray(fields,addEvent);
+    loopArray(fields,resetBackground)
+
+}
+//dataManip checks if thers a winning configuration
+function check(winningBoardConfiguration){
+    //rewrite as a ternary
+    if(winningBoardConfiguration === true){
+        win = true;
+    }
+}
+//dataManip method
+function loopArray(arr,fun){
+    for(var i=0;i<arr.length;i++){
+        fun(arr[i]);
+    }
+}
+//invoked in the controller, function in controller?
+function addEvent(x){
+    x.addEventListener('click',f1);
+}
+//UI method
+function resetBackground(x){
+    x.style.background = 'white';
+}
+//Controller method
+function newRound(){
+    console.log('newRound');
+    //UI getCounter method?
+    document.querySelector('.counter').innerHTML -= 1;
+    //var txt = 'o' or 'x' depending on whitch player is playing, doc.quer('.small-'+player).innerhtml = txt,player change data method at the end of thos function ----- no need fo player ifs use player value
+    if(player === 1){
+        
+        if(win===true){
+            score1++;
+            document.querySelector('.small-1').innerHTML += "o";
+        }
+        player = 2;
+        
+    }else{
+        
+        if(win===true){
+            score2++;
+            document.querySelector('.small-2').innerHTML += "x";
+        }
+        player=1;
+        
+    }
+    //win=false should be in the init function
+    win=false;
+    init();
+}
+//controller method
+function endOfGame(){
+    var txt;
+    //UI one method hidding one div wrap 
+    visibilityHide(document.querySelector('.p1'));
+    visibilityHide(document.querySelector('.p2'));
+    visibilityHide(document.querySelector('.counter'));
+    visibilityHide(document.querySelector('.new-game'));
+    if (score1>score2){txt='<em>player1</em> wins!<br><span class="play-again new">p<em class="new">l</em><em class="green new">a</em><em class="new">y </em>a<em class="new">g</em><em class="green new">a</em>i<em class="new">n</em></span>';
+    }else if (score1<score2){txt='<em>player2</em> wins!<br><span class="play-again new">p<em class="new">l</em><em class="green new">a</em><em class="new">y </em>a<em class="new">g</em><em class="green new">a</em>i<em class="new">n</em></span>';
+    }else if (score1===score2){txt='it\'s a tie!<br><span class="play-again new">p<em class="new">l</em><em class="green new">a</em><em class="new">y </em>a<em class="new">g</em><em class="green new">a</em>i<em class="new">n</em></span>';}
+
+    //display {div.innerHtml = txt}
+    document.querySelector(".game-wrap .winner").innerHTML = txt;
+    visible(document.querySelector(".game-wrap .winner"));
+}
+
+//UI method
+function visibilityHide(id){
+    
+    id.style.visibility = "hidden";
+    id.style.opacity = "0";
+}
+//UI method
+function visible(id){
+    id.style.visibility = "visible";
+    id.style.opacity = "1";
+}
+//Controller function in return obj?
+function f1(event){
+    counter ++;
+    //if win return then close and write another if (doesnt have to be nested couse if win, returns), no else needed
+    //is it necesery? maybe latter when win removeAllEventListenersFromFields
+    
+    if(!win){
+    if(player === 1){
+        //shoul be checkField(event,player) outside of the if statment
+        checkField(event,1);
+        //UI changeFieldsBackground method outside of the if statment (event.target.style.background = "url(img/ox-"+player+".png)";)
+        event.target.style.background = "url(img/o.png)";
+        
+        checkIfWin();
+        //controller remove eventL method? -- outside of an if statement!! 
+        event.target.removeEventListener('click',f1);
+        //if win is the one necesary ifs --- if win ===true&& document.querySelector('.counter').innerHTML !== "1" 
+        if(win === true){
+            document.querySelector('.p'+player+' p').innerHTML = 'winner!';
+            //make a var for counter el --- na samym poczatku  bez ! po setTimeout return reszta na tym samym poziomie
+            //osobna funkcja na wypadek win?
+            if(document.querySelector('.counter').innerHTML !== "1"){
+                setTimeout(newRound,2000);
+            }else{
+                //osobna funkcja lastRound? czy to wszystko poprostu do endGame
+                console.log("end");
+                //dataManip  var x = 2;      score =[0,0]      score[player-1]++;
+                score1++;
+                //poza if statment
+                document.querySelector('.small-1').innerHTML += "o";
+                //osobna funkcja lastRound? czy poprostu do endGame
+                endOfGame();
+            }
+            return
+        //zmienic nazwe counter bo sie myli, moze fieldsChectInRound
+        }else if(counter === 9 && win===false){
+            if(document.querySelector('.counter').innerHTML !== "1"){
+            document.querySelector('.p1 p').innerHTML = 'tie';
+            document.querySelector('.p2 p').innerHTML = 'tie';
+            setTimeout(newRound,2000);
+            }else{
+                console.log("end");
+                score1++;
+                document.querySelector('.small-1').innerHTML += "o";
+                setTimeout(endOfGame,2000);
+            }
+            return
+        }
+        //next player function
+        player = 2;
+        }
+    else{
+        checkField(event,2);
+        event.target.style.background = "url(img/x.png)";
+        checkIfWin();
+        event.target.removeEventListener('click',f1);
+        if(win === true){
+            document.querySelector('.p'+player+' p').innerHTML = 'winner!';
+            if(document.querySelector('.counter').innerHTML !== "1"){
+                setTimeout(newRound,2000);
+////////////////else add to score2, call function end of game 
+            }else{
+                console.log("end");
+                score2++;
+                document.querySelector('.small-2').innerHTML += "x";
+                setTimeout(endOfGame,2000);
+            }
+            return
+        }else if(counter === 9 && win===false){
+            if(document.querySelector('.counter').innerHTML !== "1"){
+            document.querySelector('.p1 p').innerHTML = 'tie';
+            document.querySelector('.p2 p').innerHTML = 'tie';
+            
+            setTimeout(newRound,2000);
+            }else{
+                console.log('end');
+                setTimeout(endOfGame,2000);
+            }
+            return
+        }
+        /*win === true? console.log("Winner: Player"+ player +'!'):console.log("no");*/
+        player = 1;
+        
+    }
+    }
+}
+
+function checkField(event,x){
+    var ID = event.target.id;
+        console.log(ID);
+        data.allFields[ID] = x;
+}
+
+function checkIfWin(){
+    if((data.allFields.LT === 1 && data.allFields.CT === 1&& data.allFields.RT === 1)||(data.allFields.LT === 2 && data.allFields.CT === 2&& data.allFields.RT === 2)){
+        data.win.TR = true;
+    }else if((data.allFields.LT === 1 && data.allFields.LC === 1&& data.allFields.LB === 1)||(data.allFields.LT === 2 && data.allFields.LC === 2&& data.allFields.LB === 2)){
+        data.win.LC = true;
+    }else if((data.allFields.LC === 1 && data.allFields.CC === 1&& data.allFields.RC === 1)||(data.allFields.LC === 2 && data.allFields.CC === 2&& data.allFields.RC === 2)){
+        data.win.CR = true;
+    }else if((data.allFields.CT === 1 && data.allFields.CC === 1&& data.allFields.CB === 1)||(data.allFields.CT === 2 && data.allFields.CC === 2&& data.allFields.CB === 2)){
+        data.win.CC = true;
+    }else if((data.allFields.RT === 1 && data.allFields.RC === 1&& data.allFields.RB === 1)||(data.allFields.RT === 2 && data.allFields.RC === 2&& data.allFields.RB === 2)){
+        data.win.RC = true;
+    }else if((data.allFields.LB === 1 && data.allFields.CB === 1&& data.allFields.RB === 1)||(data.allFields.LB === 2 && data.allFields.CB === 2&& data.allFields.RB === 2)){
+        data.win.BR = true;
+    }else if((data.allFields.LT === 1 && data.allFields.CC === 1&& data.allFields.RB === 1)||(data.allFields.LT === 2 && data.allFields.CC === 2&& data.allFields.RB === 2)){
+        data.win.S1 = true;
+    }else if((data.allFields.LB === 1 && data.allFields.CC === 1&& data.allFields.RT=== 1)||(data.allFields.LB === 2 && data.allFields.CC === 2&& data.allFields.RT=== 2)){
+        data.win.S2 = true;
+    }
+    check(data.win.TR);
+    check(data.win.CR);
+    check(data.win.BR);
+    check(data.win.LC);
+    check(data.win.CC);
+    check(data.win.RC);
+    check(data.win.S1);
+    check(data.win.S2);
+}
+
+//controller setupEventListeners method
+document.querySelector('.game-wrap').addEventListener('click',function(event){
+    
+    if(event.target.classList.contains('new')){
+        newGame();
+    }
+});
+
+
+
+/*function startTimmer(){
+    timmer = setInterval(intervalPlayAgain,400);
+}
+function stopTimmer(){
+    clearInterval(timmer,400);
+}*/
+
+
+//UI rewrite so it can be a template toggleFontSize(smallFont,bigFont,letterSpacing) 
+function intervalPlayAgain(){
+    var x = document.querySelector(".play-again").style;
+    if(x.fontSize==="30px"){
+        x.fontSize="33.5px";
+        x.letterSpacing="1.5px";
+    }else{
+        x.fontSize="30px";
+        x.letterSpacing="0px";
+    }
+};
+
+timmer = setInterval(intervalPlayAgain,400);
+
+
+
+//UI rewrite so it can be a template toggleFontSize(smallFont,bigFont,letterSpacing) 
+setInterval(function(){
+    var x = document.querySelector(".p"+player).style;
+    if(x.fontSize==="27px"){
+        x.fontSize="27.5px";
+        x.letterSpacing="0.5px";
+    }else{
+        x.fontSize="27px";
+        x.letterSpacing="0px";
+    }
+},400);
+
+
+
+
+newGame();
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*document.querySelector('.new-game').addEventListener('mouseenter',startInterval);
+document.querySelector('.new-game').addEventListener('mouseleave',stopInterval);
+
+function startInterval(){
+   timmer = setInterval(interval,300);
+}
+function stopInterval(){
+    clearInterval(timmer,300);
+    document.querySelector('.new-game').style.fontSize = '60px';
+    document.querySelector('.new-game').style.letterSpacing = '0px';
+}
+function interval(){
+    var x = document.querySelector('.new-game').style;
+    if(x.fontSize==="60px"){
+        x.fontSize="62.5px";
+        x.letterSpacing="2.5px";
+    }else{
+        x.fontSize="60px";
+        x.letterSpacing="0px";
+    }
+}*/
+
+
+
+
+
+
+
+
+/*document.querySelector('.game-wrap').addEventListener('mouseenter',function(event){
+    
+    if(event.target.classList.contains('new')){
+        stopTimmer();
+    }
+});
+
+document.querySelector('.game-wrap').addEventListener('mouseleave',function(event){
+    
+    if(event.target.classList.contains('new')){
+        startTimmer();
+    }
+});*/
+//create colection/array loop thru add each (.new) an event listener
+/*var newCollection = document.querySelectorAll('.new');
+
+function addELnew(x){
+    x.addEventListener('click',newGame);
+    x.addEventListener('mouseenter',stopTimmer);
+    x.addEventListener('mouseleave',startTimmer);
+}
+
+loopArray(newCollection,addELnew);*/
